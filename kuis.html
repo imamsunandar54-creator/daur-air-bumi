@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif IPAS Kelas 4 SD - Siklus Air</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+            color: var(--dark);
+            display: flex;
+            justify-content: center;
+            align-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 3px solid var(--light);
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: var(--light);
+            border-radius: 4px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-card h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options-list {
+            list-style: none;
+        }
+
+        .option-item {
+            background-color: var(--light);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-item:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .option-item.correct {
+            background-color: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+
+        .option-item.wrong {
+            background-color: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+
+        .option-item.disabled {
+            pointer-events: none;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .feedback.correct {
+            background-color: #ecfdf5;
+            color: #047857;
+            border-left: 5px solid var(--success);
+        }
+
+        .feedback.wrong {
+            background-color: #fff5f5;
+            color: #b91c1c;
+            border-left: 5px solid var(--danger);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        .result-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .score-circle .num {
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #f1c40f;
+            color: #744210;
+            font-weight: bold;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 18px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div class="header">
+            <h1>🎮 KUIS INTERAKTIF IPAS</h1>
+            <p>🌧️ Siklus Air (Daur Air) - Kelas 4 SD</p>
+        </div>
+
+        <div class="progress-bar" id="progressBox">
+            <div class="progress" id="progressBar"></div>
+        </div>
+
+        <div id="quiz-screen">
+            <div class="question-card">
+                <h2 id="question-text">Memuat pertanyaan...</h2>
+                <ul class="options-list" id="options-container">
+                    </ul>
+            </div>
+
+            <div class="feedback" id="feedback-box"></div>
+
+            <button class="btn" id="next-btn" style="display: none;" onclick="nextQuestion()">Pertanyaan Selanjutnya ➡️</button>
+        </div>
+
+        <div class="result-screen" id="result-screen">
+            <h2>🏆 Hasil Kuis Kamu!</h2>
+            <div class="score-circle">
+                <span class="num" id="final-score">0</span>
+                <span>Skor</span>
+            </div>
+            <div class="badge" id="predicate-badge">Predikat</div>
+            <p id="result-desc" style="margin-top: 20px; line-height: 1.6; color: #555;"></p>
+            <button class="btn" onclick="restartQuiz()">🔄 Ulangi Kuis</button>
+        </div>
+    </div>
+
+    <script>
+        // Data Soal Berdasarkan Rancangan
+        const quizData = [
+            {
+                question: "☀️ Apa yang menyebabkan air di laut, sungai, dan danau menguap?",
+                options: ["A. Angin", "B. Matahari", "C. Awan", "D. Hujan"],
+                correct: 1,
+                explanation: "Matahari memanaskan air sehingga berubah menjadi uap air."
+            },
+            {
+                question: "☁️ Proses berubahnya uap air menjadi awan disebut....",
+                options: ["A. Evaporasi", "B. Infiltrasi", "C. Kondensasi", "D. Presipitasi"],
+                correct: 2,
+                explanation: "Kondensasi adalah proses pengembunan uap air menjadi awan."
+            },
+            {
+                question: "🌧️ Air yang turun dari awan ke bumi disebut....",
+                options: ["A. Evaporasi", "B. Presipitasi", "C. Infiltrasi", "D. Koleksi"],
+                correct: 1,
+                explanation: "Presipitasi adalah peristiwa turunnya hujan dari awan."
+            },
+            {
+                question: "🌱 Apa yang terjadi pada sebagian air hujan yang jatuh ke tanah?",
+                options: ["A. Menguap langsung", "B. Menjadi awan", "C. Meresap ke dalam tanah", "D. Menjadi matahari"],
+                correct: 2,
+                explanation: "Proses meresapnya air ke dalam tanah ini disebut infiltrasi."
+            },
+            {
+                question: "🌊 Tempat berkumpulnya air setelah hujan adalah....",
+                options: ["A. Laut, sungai, dan danau", "B. Matahari", "C. Awan", "D. Gunung"],
+                correct: 0,
+                explanation: "Air akan kembali berkumpul di laut, sungai, dan danau sebelum mengulangi siklus air."
+            },
+            {
+                question: "🔄 Susunlah tahapan siklus air yang benar!",
+                options: [
+                    "A. Hujan → Kondensasi → Evaporasi → Koleksi",
+                    "B. Evaporasi → Kondensasi → Hujan → Koleksi",
+                    "C. Koleksi → Hujan → Kondensasi → Evaporasi",
+                    "D. Kondensasi → Evaporasi → Koleksi → Hujan"
+                ],
+                correct: 1,
+                explanation: "Urutan yang benar: Evaporasi (Penguapan) → Kondensasi (Pengembunan) → Hujan (Presipitasi) → Koleksi (Pengumpulan)."
+            },
+            {
+                question: "🧩 Benar atau Salah: Air di bumi akan habis jika terus digunakan manusia.",
+                options: ["Benar", "Salah"],
+                correct: 1,
+                explanation: "Salah. Air terus berputar melalui siklus air sehingga jumlah air di bumi relatif tetap."
+            },
+            {
+                question: "🧩 Benar atau Salah: Tumbuhan membantu siklus air melalui proses transpirasi.",
+                options: ["Benar", "Salah"],
+                correct: 0,
+                explanation: "Benar. Tumbuhan melepaskan uap air melalui daun yang disebut transpirasi."
+            },
+            {
+                question: "🎯 Tantangan Bonus: Jika tidak ada matahari, apa yang akan terjadi pada siklus air?",
+                options: [
+                    "A. Siklus air berjalan lebih cepat",
+                    "B. Penguapan tetap terjadi normal",
+                    "C. Penguapan berkurang sehingga siklus air terganggu",
+                    "D. Hujan terjadi terus-menerus"
+                ],
+                correct: 2,
+                explanation: "Penguapan berkurang sehingga siklus air terganggu. Matahari merupakan sumber energi utama yang menggerakkan siklus air."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const questionTextElement = document.getElementById("question-text");
+        const optionsContainer = document.getElementById("options-container");
+        const feedbackBox = document.getElementById("feedback-box");
+        const nextButton = document.getElementById("next-btn");
+        const progressBar = document.getElementById("progressBar");
+        const quizScreen = document.getElementById("quiz-screen");
+        const resultScreen = document.getElementById("result-screen");
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            quizScreen.style.display = "block";
+            resultScreen.style.display = "none";
+            document.getElementById("progressBox").style.display = "block";
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            resetState();
+            let currentQuestion = quizData[currentQuestionIndex];
+            questionTextElement.innerText = `Soal ${currentQuestionIndex + 1}: ${currentQuestion.question}`;
+            
+            // Update Progress Bar
+            let progressPercentage = ((currentQuestionIndex) / quizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement("li");
+                li.innerText = option;
+                li.classList.add("option-item");
+                li.addEventListener("click", () => selectOption(li, index));
+                optionsContainer.appendChild(li);
+            });
+        }
+
+        function resetState() {
+            feedbackBox.style.display = "none";
+            feedbackBox.className = "feedback";
+            nextButton.style.display = "none";
+            optionsContainer.innerHTML = "";
+        }
+
+        function selectOption(selectedLi, selectedIndex) {
+            const currentQuestion = quizData[currentQuestionIndex];
+            const allOptions = optionsContainer.children;
+
+            // Kunci semua pilihan agar tidak bisa diklik lagi
+            for (let option of allOptions) {
+                option.classList.add("disabled");
+            }
+
+            // Hitung poin (Bobot disesuaikan agar max score = 100)
+            const pointsPerQuestion = Math.round(100 / quizData.length);
+
+            if (selectedIndex === currentQuestion.correct) {
+                selectedLi.classList.add("correct");
+                score += pointsPerQuestion;
+                feedbackBox.innerHTML = `<strong>✅ Benar! (+${pointsPerQuestion} Poin)</strong><br>${currentQuestion.explanation}`;
+                feedbackBox.classList.add("correct");
+            } else {
+                selectedLi.classList.add("wrong");
+                // Beri highlight pada jawaban yang benar
+                allOptions[currentQuestion.correct].classList.add("correct");
+                feedbackBox.innerHTML = `<strong>❌ Kurang Tepat!</strong><br>${currentQuestion.explanation}`;
+                feedbackBox.classList.add("wrong");
+            }
+
+            feedbackBox.style.display = "block";
+            nextButton.style.display = "block";
+            
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextButton.innerText = "Lihat Hasil Akhir 🏆";
+            } else {
+                nextButton.innerText = "Pertanyaan Selanjutnya ➡️";
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            // Memastikan skor maksimal dibulatkan ke 100 jika benar semua
+            if (score > 100 || currentQuestionIndex === quizData.length && score >= 99) {
+                score = 100;
+            }
+
+            quizScreen.style.display = "none";
+            document.getElementById("progressBox").style.display = "none";
+            resultScreen.style.display = "block";
+
+            document.getElementById("final-score").innerText = score;
+
+            let predicate = "";
+            let description = "";
+
+            if (score >= 80) {
+                predicate = "🌟 Ahli Siklus Air";
+                description = "Hebat sekali! Kamu sudah memahami seluruh proses siklus air dengan sangat baik. Pertahankan prestasimu ya!";
+            } else if (score >= 60) {
+                predicate = "👍 Hebat";
+                description = "Kerja bagus! Kamu sudah paham konsep dasarnya, tinggal sedikit membaca lagi tentang istilah-istilah detailnya.";
+            } else if (score >= 40) {
+                predicate = "😊 Cukup";
+                description = "Tidak apa-apa, kamu sudah berusaha dengan baik. Yuk, baca-baca lagi materi siklus air agar lebih paham!";
+            } else {
+                predicate = "📚 Ayo Belajar Lagi";
+                description = "Jangan berkecil hati! Siklus air itu seru kok. Mari ulangi kuisnya dan pelajari lagi penjelasan di setiap soalnya ya.";
+            }
+
+            document.getElementById("predicate-badge").innerText = predicate;
+            document.getElementById("result-desc").innerText = description;
+        }
+
+        function restartQuiz() {
+            startQuiz();
+        }
+
+        // Jalankan kuis pertama kali saat halaman dimuat
+        startQuiz();
+    </script>
+</body>
+</html>
